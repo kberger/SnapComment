@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SnapComment</string>
+    <string name="new_picture">New Picture</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="image_success">Image\nSuccessfully\nTaken!</string>
+
+</resources>
