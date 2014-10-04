@@ -5,6 +5,8 @@ import com.karlrberger.snapcomment.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.media.ExifInterface;
+import android.media.ImageReader;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +56,11 @@ public class SnapComment extends Activity {
      * The instance of the {@link SystemUiHider} for this activity.
      */
     private SystemUiHider mSystemUiHider;
+
+    /**
+     * Part of the Exif standard but not included in the tag set given with {@link android.media.ExifInterface}
+     */
+    private static final String EXIF_TAG_USER_COMMENT = "UserComment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +175,7 @@ public class SnapComment extends Activity {
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    String mCurrentPhotoPath;
 
     public void getPicture(View view) {
         //Create Camera intent
@@ -194,11 +202,34 @@ public class SnapComment extends Activity {
     private void processCameraReturn(int resultCode, Intent data) {
         switch(resultCode) {
             case RESULT_OK:
-                Uri photoUri = data.getData();
+                writeMetadata("THIS IS A TEST BE NOT ALARMED");
+                printMetadata();
                 break;
             default:
                 break;
         }
+    }
+
+    private void writeMetadata(String comment) {
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(mCurrentPhotoPath);
+            exifInterface.setAttribute(EXIF_TAG_USER_COMMENT, comment);
+            exifInterface.saveAttributes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printMetadata() {
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(mCurrentPhotoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(exifInterface != null) System.out.println(exifInterface.getAttribute(EXIF_TAG_USER_COMMENT));
+        
     }
 
     private File createImageFile() throws IOException {
@@ -209,7 +240,7 @@ public class SnapComment extends Activity {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(filename, ".jpg", storageDir);
 
-
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
